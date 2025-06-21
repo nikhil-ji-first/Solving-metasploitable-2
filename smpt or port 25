@@ -3,7 +3,7 @@ Penetration Testing Report: Metasploitable 2 – Port 25 (SMTP)
 Target: Metasploitable 2
 IP Address: 192.168.1.101
 Port: 25 (SMTP)
-Date: 2025-06-15
+Date: 15-06-2025
 Tested By: [ ME ]
 
 
@@ -35,7 +35,8 @@ Findings:
 
 Tool Used: telnet, netcat, smtp-user-enum
 
-Command: telnet 192.168.56.101 25
+Command: telnet 192.168.56.101 25   
+         nc 192.168.231.109 25
 Response:
 220 metasploitable.localdomain ESMTP Postfix (Ubuntu)
 
@@ -68,8 +69,6 @@ run
 
 Result:
 - Successfully enumerated existing system users via SMTP.
-
-Note: While not a remote code execution vulnerability, user enumeration is a critical reconnaissance tool in real-world attacks.
 
 
 
