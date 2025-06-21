@@ -1,0 +1,103 @@
+Penetration Testing Report – Metasploitable2 (Port 80 - HTTP)
+
+1. Test date : 10-06-25
+   Test by: [ me ]
+2. Target Information
+- Target IP: 192.168.1.101
+- Operating System: Linux (Ubuntu-based)
+- Web Server Port: 80/tcp (HTTP)
+- Hostname: Metasploitable2 (default configuration)
+- Tools Used: Nmap, Nikto, Dirb, Metasploit, Browser
+
+3. Reconnaissance
+
+3.1 Nmap Scan
+Command:
+nmap -sV -p 80 192.168.1.101
+
+Output:
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.2.8 ((Ubuntu) DAV/2)
+
+Interpretation:
+Apache 2.2.8 is an outdated version and may be vulnerable to known exploits.
+
+4. Enumeration
+
+4.1 Browser Inspection
+Accessed: http://192.168.1.101/
+
+Findings:
+- Default Apache page lists multiple vulnerable web apps:
+  * DVWA (Damn Vulnerable Web App)
+  * Mutillidae
+  * phpMyAdmin
+  * WebDAV
+  * Tomcat (through link)
+
+4.2 Directory Brute Forcing (Dirb)
+Command:
+dirb http://192.168.1.101/
+
+Notable results:
+- /dvwa/
+- /mutillidae/
+- /phpmyadmin/
+- /test/
+- /uploads/
+
+4.3 Vulnerability Scan (Nikto)
+Command:
+nikto -h http://192.168.1.101
+
+Findings:
+- Outdated Apache version with known vulnerabilities
+- Found XSS, file disclosure, and directory indexing
+- /test/ allows file uploads
+- Multiple misconfigurations and default files exposed
+
+5. Exploitation
+
+5.1 Exploiting DVWA (Damn Vulnerable Web App)
+Steps:
+- Accessed http://192.168.1.101/dvwa/
+- Logged in using default creds: admin / password
+- Exploited vulnerabilities in:
+  * SQL Injection
+  * Command Injection
+  * File Inclusion
+  * XSS (Reflected & Stored)
+
+5.2 Exploiting File Upload in Mutillidae or /test/
+- Uploaded PHP reverse shell to /uploads/ or /test/
+- Set listener on attacker machine (nc -lvnp 4444)
+- Executed shell via browser: http://192.168.1.101/uploads/shell.php
+
+Result:
+- Gained reverse shell as `www-data`
+- Escalated to root using local privilege escalation
+
+6. Post-Exploitation
+
+Commands run:
+- whoami → www-data, later root
+- uname -a → confirmed kernel version
+- ifconfig → verified network
+- cat /etc/passwd → enumerated users
+
+Persistence:
+- Created cron job reverse shell
+- Copied backdoor to web directory
+
+7. Recommendations
+
+- Remove or isolate vulnerable web applications like DVWA, Mutillidae
+- Update Apache to the latest version
+- Disable or secure file upload directories
+- Harden PHP configurations (`disable_functions`, `open_basedir`)
+- Regularly audit and update web applications
+- Enforce proper access control and input validation
+
+8. Conclusion
+
+Port 80 on 192.168.1.101 was hosting multiple vulnerable web applications and an outdated Apache server. Exploitation led to a full compromise of the system. This demonstrates the critical importance of patching web services, restricting access to test applications, and securing upload functionalities.
