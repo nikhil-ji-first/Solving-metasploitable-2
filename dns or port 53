@@ -1,0 +1,75 @@
+Penetration Testing Report: Metasploitable2 - Port 53 (DNS)
+==============================================================
+
+Target System  : Metasploitable2 (Lab Environment)
+Target IP      : 192.168.1.101
+Test Date      : 12-66-1025
+Tested By      : [me]
+
+--------------------------------------------------------------
+1. Port 53 (DNS) - Domain Name System Service
+--------------------------------------------------------------
+
+Service        : DNS (Domain Name System)
+Port           : 53/udp and 53/tcp
+Status         : Open
+Tool Used      : Nmap, dig, dnsenum
+
+Scan Command:
+nmap -sU -sT -p 53 192.168.1.101
+
+Scan Result:
+  PORT   STATE SERVICE
+  53/udp open  domain
+  53/tcp open  domain
+  found CVE-2008-0122 CSSV 10.0 vulneraries that causes Denial Of Service Execute Code Memory corruption
+--------------------------------------------------------------
+Vulnerability Overview
+--------------------------------------------------------------
+
+- DNS server running on port 53
+- Commonly vulnerable to DNS cache poisoning, zone transfers, and amplification attacks
+- Default Metasploitable2 DNS service may allow zone transfers
+
+--------------------------------------------------------------
+Manual Enumeration and Exploitation
+--------------------------------------------------------------
+
+1. DNS Zone Transfer Test:
+   dig axfr @192.168.1.101 example.com
+
+2. Using dnsenum or host command to enumerate DNS records:
+   dnsenum 192.168.1.101
+   host -l example.com 192.168.1.101
+
+3. If zone transfer is allowed:
+   - Attacker can retrieve all DNS zone data
+   - Leads to information disclosure (internal hostnames, IPs)
+
+--------------------------------------------------------------
+Impact
+--------------------------------------------------------------
+
+- Information disclosure of internal network structure
+- Possible groundwork for further attacks (phishing, spoofing)
+- DNS amplification attacks if server is misconfigured and exposed
+
+--------------------------------------------------------------
+Mitigation Recommendations
+--------------------------------------------------------------
+
+- Disable DNS zone transfers to unauthorized clients
+- Use access control lists (ACLs) for DNS queries and zone transfers
+- Regularly patch and update DNS server software
+- Monitor DNS traffic for anomalies and potential abuse
+- Use DNSSEC to protect integrity of DNS data
+
+--------------------------------------------------------------
+Conclusion
+--------------------------------------------------------------
+
+The DNS service on port 53 of Metasploitable2 (192.168.1.101) can be exploited for:
+
+- DNS zone transfers exposing network info
+- Potential DNS poisoning and amplification attacks
+
