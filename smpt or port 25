@@ -1,0 +1,130 @@
+Penetration Testing Report: Metasploitable 2 – Port 25 (SMTP)
+
+Target: Metasploitable 2
+IP Address: 192.168.1.101
+Port: 25 (SMTP)
+Date: 2025-06-15
+Tested By: [ ME ]
+
+
+
+
+
+
+1. Port Scanning and Service Identification
+
+Tool Used: nmap
+Command: nmap -sV -p25  192.168.56.101         or use (-A) for aggresive scan  
+
+Output:
+PORT   STATE SERVICE VERSION
+25/tcp open  smtp    Postfix smtpd
+
+Findings:
+- Port 25 is open and running Postfix SMTP.
+- The server is not using encryption (no SMTPS or STARTTLS detected).
+- No authentication mechanism is immediately enforced.
+
+
+
+
+
+
+
+2. Banner Grabbing and Enumeration
+
+Tool Used: telnet, netcat, smtp-user-enum
+
+Command: telnet 192.168.56.101 25
+Response:
+220 metasploitable.localdomain ESMTP Postfix (Ubuntu)
+
+SMTP Enumeration:
+smtp-user-enum -M VRFY -U /usr/share/seclists/Usernames/top-usernames-shortlist.txt -t 192.168.56.101
+
+Results:
+- Users such as root, user, msfadmin are enumerated successfully using the VRFY command.
+
+Vulnerability Identified:
+- User Enumeration via VRFY Command
+
+
+
+
+
+
+
+
+3. Exploitation
+
+Metasploit Module Used:
+- auxiliary/scanner/smtp/smtp_enum
+
+Commands:
+use auxiliary/scanner/smtp/smtp_enum
+set RHOSTS 192.168.1.101
+set USER_FILE /usr/share/seclists/Usernames/top-usernames.txt
+run
+
+Result:
+- Successfully enumerated existing system users via SMTP.
+
+Note: While not a remote code execution vulnerability, user enumeration is a critical reconnaissance tool in real-world attacks.
+
+
+
+
+
+
+
+
+
+
+
+4. Impact
+
+- Information Disclosure: Attackers can determine valid system usernames.
+- Facilitates Further Attacks: Usernames can be used in brute force  attacks.
+- Misconfiguration: Lack of security controls such as disabling VRFY and EXPN commands.
+
+
+
+
+
+5. Recommendations
+
+1. Disable VRFY and EXPN Commands:
+   Modify Postfix configuration (main.cf):
+     disable_vrfy_command = yes
+   Reload Postfix:
+     service postfix reload
+
+2. Implement Authentication and Encryption:
+   Enable STARTTLS and SMTP AUTH to prevent unauthorized access.
+
+3. Limit Access to SMTP Service:
+   Use firewall rules to restrict port 25 to known, trusted IPs.
+
+4. Monitor SMTP Logs:
+   Regularly check logs for unusual activity and brute-force attempts.
+
+
+
+
+
+
+Summary
+
+ Vulnerability             Exploitability   Recommendation               
+
+| VRFY User Enumeration  | Easy           | Disable VRFY command            |
+| Lack of Encryption     | Moderate       | Enable STARTTLS and enforce TLS |
+| Open SMTP to the World | Moderate       | Restrict via firewall or ACL    |
+
+
+
+
+
+Conclusion
+
+The SMTP service on Metasploitable 2 presents multiple misconfigurations that allow user enumeration and insecure communication. While no direct remote code execution was discovered via port 25, the exposed information significantly aids in further penetration activities.
