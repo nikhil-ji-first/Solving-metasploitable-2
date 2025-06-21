@@ -1,0 +1,75 @@
+Penetration Testing Report – Metasploitable2 (Port 513 - rlogin)
+
+1.
+2. Target Information
+- Target IP: 192.168.1.101
+- Target System: Metasploitable2 (Ubuntu-based)
+- Service: rlogin
+- Port: 513/tcp
+
+3. Reconnaissance
+
+3.1 Nmap Scan
+Command:
+nmap -sS -sV -p 513 192.168.1.101
+
+Output:
+PORT    STATE SERVICE VERSION
+513/tcp open  login   Linux rlogin daemon
+
+Interpretation:
+The rlogin service is running and accessible on the target.
+
+4. Enumeration
+
+rlogin is a legacy service that does not require a password if trust is established via `.rhosts` or `/etc/hosts.equiv`.
+We checked for misconfiguration allowing unauthorized access.
+
+We attempted to connect using the rlogin command:
+rlogin 192.168.1.101 -l root
+
+Result:
+If `.rhosts` or trust entries were misconfigured, this granted shell access as the `root` user without authentication.
+
+Additional test:
+Created spoofed entries in local `.rhosts` to impersonate trusted hosts and connected to the target using a spoofed IP.
+
+5. Exploitation
+
+The service was exploited by connecting via rlogin without authentication due to a trust misconfiguration.
+
+Steps:
+1. Spoof trusted IP or use a host already trusted by target
+2. Use command:
+   rlogin 192.168.1.101 -l root
+
+Result:
+- Login succeeded without password
+- Remote root shell obtained
+
+6. Post-Exploitation
+
+After successful login:
+- Command executed: `whoami` → root
+- Enumerated system details: `uname -a`, `ifconfig`, `cat /etc/passwd`
+- Demonstrated full system access and potential for lateral movement
+
+Persistence:
+- The attacker can maintain access by modifying `.rhosts` or planting reverse shells
+
+7. Recommendations
+
+- Disable rlogin service entirely if not needed
+  * Comment out or remove from `/etc/inetd.conf` or `/etc/xinetd.d`
+- Remove `.rhosts` and `/etc/hosts.equiv` trust files
+- Replace with SSH for secure remote login
+- Apply firewall rules to block port 513/tcp
+- Monitor logs for unauthorized access attempts
+- Regularly audit for legacy services and unused ports
+
+8. Conclusion
+
+Port 513 (rlogin) on Metasploitable2 was vulnerable due to trust-based misconfiguration. 
+This allowed unauthenticated root access from a remote attacker. 
+This highlights the severe risk posed by legacy services and underscores the importance of service deprecation and strict access control.
+
