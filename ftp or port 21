@@ -90,4 +90,23 @@ Notes:
 
 8. Conclusion
 
-Port 21 (FTP) on 192.168.1.101 was vulnerable due to an outdated and backdoored vsftpd service (v2.3.4). Anonymous login was enabled, and full system compromise was achieved via the Metasploit `vsftpd_234_backdoor` exploit. This demonstrates a critical security flaw that must be remediated immediately.
+Port 21 (FTP) on 192.168.1.101 was vulnerable due to an outdated and backdoored vsftpd service (v2.3.4). 
+Anonymous login was enabled, and full system compromise was achieved via the Metasploit `vsftpd_234_backdoor` exploit. 
+This demonstrates a critical security flaw that must be remediated immediately.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
