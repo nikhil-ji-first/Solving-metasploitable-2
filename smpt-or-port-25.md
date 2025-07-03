@@ -1,20 +1,18 @@
-Penetration Testing Report: Metasploitable 2 – Port 25 (SMTP)
+Penetration Testing Report:– Port 25 (SMTP)
 
-Target: Metasploitable 2
+Target: vulnerable machine
 IP Address: 192.168.1.101
 Port: 25 (SMTP)
 Date: 15-06-2025
-Tested By: [ ME ]
+Tested By: [ NIKHIL ]
 
+---
 
-
-
-
-
-1. Port Scanning and Service Identification
+# 1. Port Scanning and Service Identification
 
 Tool Used: nmap
-``` nmap -sV -p25  192.168.56.101         or use (-A) for aggresive scan 
+```
+ nmap -A -sV -p 25  192.168.56.101 
 ```
 
 Output:
@@ -27,71 +25,45 @@ Findings:
 - No authentication mechanism is immediately enforced.
 
 
-
-
-
-
-
-2. Banner Grabbing and Enumeration
+# 2. Banner Grabbing and Enumeration
 
 Tool Used: telnet, netcat, smtp-user-enum
 
-Command: telnet 192.168.56.101 25   
-         nc 192.168.231.109 25
-Response:
-220 metasploitable.localdomain ESMTP Postfix (Ubuntu)
+```
+ telnet 192.168.56.101 25 
+```  
+```
+ nc 192.168.231.109 25
+```
+ It tries to connect to port 25 on the target IP. It’s often used for debugging, banner grabbing, or scripting network tests.
+ 
+- 2.1 SMTP Enumeration    
 
-SMTP Enumeration:
+```
 smtp-user-enum -M VRFY -U /usr/share/seclists/Usernames/top-usernames-shortlist.txt -t 192.168.56.101
-
-Results:
-- Users such as root, user, msfadmin are enumerated successfully using the VRFY command.
-
+```
 Vulnerability Identified:
-- User Enumeration via VRFY Command
+User Enumeration via VRFY Command
 
+- 2.1 Metasploit Module Used
+ 
+```
+msfconsole
+auxiliary/scanner/smtp/smtp_enum    
+use auxiliary/scanner/smtp/smtp_enum  
+set RHOSTS 192.168.1.101   
+set USER_FILE /usr/share/seclists/Usernames/top-usernames.txt    
+run  
+``` 
+You will list all user/possible directory
 
+# 4. Impact
 
+ Information Disclosure: Attackers can determine valid system usernames.
+ Facilitates Further Attacks: Usernames can be used in brute force  attacks.
+ Misconfiguration: Lack of security controls such as disabling VRFY and EXPN commands.
 
-
-
-
-
-3. Exploitation
-
-Metasploit Module Used:
-- auxiliary/scanner/smtp/smtp_enum
-
-Commands:
-use auxiliary/scanner/smtp/smtp_enum
-set RHOSTS 192.168.1.101
-set USER_FILE /usr/share/seclists/Usernames/top-usernames.txt
-run
-
-Result:
-- Successfully enumerated existing system users via SMTP.
-
-
-
-
-
-
-
-
-
-
-
-4. Impact
-
-- Information Disclosure: Attackers can determine valid system usernames.
-- Facilitates Further Attacks: Usernames can be used in brute force  attacks.
-- Misconfiguration: Lack of security controls such as disabling VRFY and EXPN commands.
-
-
-
-
-
-5. Recommendations
+#5. Recommendations
 
 1. Disable VRFY and EXPN Commands:
    Modify Postfix configuration (main.cf):
@@ -108,23 +80,18 @@ Result:
 4. Monitor SMTP Logs:
    Regularly check logs for unusual activity and brute-force attempts.
 
+# Summary
 
+ -Vulnerability  
+          Lack of Encryption
+          Open SMTP to the World
+          VRFY User Enumeration
+ 
+-Recommendation               
+         Disable VRFY command      
+         Enable STARTTLS and enforce TLS
+         Restrict via firewall or ACL   
 
+# Conclusion
 
-
-
-Summary
-
- Vulnerability             Exploitability   Recommendation               
-
-| VRFY User Enumeration  | Easy           | Disable VRFY command            |
-| Lack of Encryption     | Moderate       | Enable STARTTLS and enforce TLS |
-| Open SMTP to the World | Moderate       | Restrict via firewall or ACL    |
-
-
-
-
-
-Conclusion
-
-The SMTP service on Metasploitable 2 presents multiple misconfigurations that allow user enumeration and insecure communication. While no direct remote code execution was discovered via port 25, the exposed information significantly aids in further penetration activities.
+The SMTP service presents multiple misconfigurations that allow user enumeration and insecure communication. While no direct remote code execution was discovered via port 25, the exposed information significantly aids in further penetration activities.
