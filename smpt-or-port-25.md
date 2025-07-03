@@ -63,7 +63,7 @@ You will list all user/possible directory
  Facilitates Further Attacks: Usernames can be used in brute force  attacks.
  Misconfiguration: Lack of security controls such as disabling VRFY and EXPN commands.
 
-#5. Recommendations
+# 5. Recommendations
 
 1. Disable VRFY and EXPN Commands:
    Modify Postfix configuration (main.cf):
@@ -82,16 +82,12 @@ You will list all user/possible directory
 
 # Summary
 
- -Vulnerability  
-          Lack of Encryption
-          Open SMTP to the World
-          VRFY User Enumeration
- 
--Recommendation               
-         Disable VRFY command      
-         Enable STARTTLS and enforce TLS
-         Restrict via firewall or ACL   
+ Vulnerability  
+- Lack of Encryption
+- Open SMTP to the World
+- VRFY User Enumeration
 
 # Conclusion
 
-The SMTP service presents multiple misconfigurations that allow user enumeration and insecure communication. While no direct remote code execution was discovered via port 25, the exposed information significantly aids in further penetration activities.
+The SMTP service presents multiple misconfigurations that allow user enumeration and insecure communication.   
+While no direct remote code execution was discovered via port 25, the exposed information significantly aids in further penetration activities.
