@@ -14,7 +14,8 @@ Tested By: [ ME ]
 1. Port Scanning and Service Identification
 
 Tool Used: nmap
-Command: nmap -sV -p25  192.168.56.101         or use (-A) for aggresive scan  
+``` nmap -sV -p25  192.168.56.101         or use (-A) for aggresive scan 
+```
 
 Output:
 PORT   STATE SERVICE VERSION
