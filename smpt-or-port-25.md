@@ -40,6 +40,10 @@ Tool Used: telnet, netcat, smtp-user-enum
 - 2.1 SMTP Enumeration    
 
 ```
+ nmap -p 25 --script smtp-enum-users 192.168.1.101
+```
+
+```
 smtp-user-enum -M VRFY -U /usr/share/seclists/Usernames/top-usernames-shortlist.txt -t 192.168.56.101
 ```
 Vulnerability Identified:
